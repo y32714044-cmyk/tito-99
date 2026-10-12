@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حبيبي 🤍</title>
+<style>
+  :root{
+    --pink:#ff5e8a; --pink-light:#ffd6e0; --bg:#fff7f9;
+    --purple:#8e5bd6; --text:#3a2e39;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+  body{background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+  #heartsCanvas{position:fixed;inset:0;pointer-events:none;z-index:5}
+  header{text-align:center;padding:50px 20px 20px;position:relative;z-index:10}
+  header h1{font-size:2.4rem;background:linear-gradient(90deg,var(--pink),var(--purple));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  header p{color:#8a7a86;margin-top:8px}
+  .container{max-width:900px;margin:0 auto;padding:20px;position:relative;z-index:10}
+  .counter-box{background:#fff;border-radius:24px;padding:30px;margin:30px 0;
+    box-shadow:0 10px 40px rgba(255,94,138,.15);text-align:center}
+  .counter-box h2{margin-bottom:15px}
+  .counter{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;direction:ltr}
+  .counter .unit{background:linear-gradient(135deg,var(--pink-light),#f3e8ff);
+    border-radius:16px;padding:18px 10px;min-width:82px}
+  .counter .unit .num{font-size:2.2rem;font-weight:bold;color:var(--pink)}
+  .counter .unit .lbl{font-size:.85rem;color:#8a7a86}
+  .date-set{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  input,textarea{border:2px solid var(--pink-light);border-radius:12px;padding:10px 14px;font-size:1rem;
+    font-family:inherit;outline:none;transition:.2s;background:#fff}
+  input:focus,textarea:focus{border-color:var(--pink)}
+  button{background:var(--pink);color:#fff;border:none;border-radius:12px;padding:10px 20px;
+    font-size:1rem;cursor:pointer;transition:.2s;font-family:inherit}
+  button:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(255,94,138,.35)}
+  .card{background:#fff;border-radius:24px;padding:28px;margin:30px 0;
+    box-shadow:0 10px 40px rgba(142,91,214,.12)}
+  .card h2{margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  #galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+  .photo{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:1;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);transition:.25s}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo:hover{transform:scale(1.03)}
+  .photo .del{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);color:#fff;border:none;
+    border-radius:50%;width:28px;height:28px;cursor:pointer;line-height:1;font-size:.9rem}
+  .upload-area{margin-top:14px}
+  #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;
+    justify-content:center;z-index:100;padding:20px}
+  #lightbox img{max-width:95%;max-height:90%;border-radius:16px;box-shadow:0 0 60px rgba(255,94,138,.4)}
+  #lightbox .close{position:absolute;top:20px;left:20px;font-size:2rem;color:#fff;background:none;
+    border:none;cursor:pointer}
+  .tl-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px dashed var(--pink-light)}
+  .tl-item:last-child{border:none}
+  .tl-date{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;
+    border-radius:12px;padding:8px 14px;min-width:110px;text-align:center;height:fit-content}
+  .tl-text{flex:1}
+  .tl-text b{display:block;margin-bottom:4px}
+  .tl-text .del{background:none;color:#c44;border:none;font-size:.85rem;padding:0;cursor:pointer}
+  .tl-form{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  #letter{background:linear-gradient(135deg,#fff,#fff5f8);border:2px dashed var(--pink);
+    border-radius:18px;padding:24px;line-height:2;white-space:pre-wrap;min-height:120px}
+  .hidden{display:none!important}
+  footer{text-align:center;padding:30px;color:#b49db0;font-size:.9rem;position:relative;z-index:10}
+  #musicToggle{position:fixed;bottom:20px;right:20px;z-index:50;border-radius:50%;
+    width:52px;height:52px;font-size:1.4rem;padding:0;box-shadow:0 6px 20px rgba(255,94,138,.4)}
+</style>
+</head>
+<body>
+
+<canvas id="heartsCanvas"></canvas>
+
+<header>
+  <h1>لـنـا حـكـاية 🤍</h1>
+  <p>صفحتنا الخاصة.. كل ذكرياتنا في مكان واحد</p>
+</header>
+
+<div class="container">
+
+  <!-- 1. Counter -->
+  <div class="counter-box">
+    <h2>⏳ عداد حبنا</h2>
+    <div class="counter">
+      <div class="unit"><div class="num" id="cd">0</div><div class="lbl">يوم</div></div>
+      <div class="unit"><div class="num" id="ch">0</div><div class="lbl">ساعة</div></div>
+      <div class="unit"><div class="num" id="cm">0</div><div class="lbl">دقيقة</div></div>
+      <div class="unit"><div class="num" id="cs">0</div><div class="lbl">ثانية</div></div>
+    </div>
+    <div class="date-set">
+      <input type="datetime-local" id="startDate">
+      <button onclick="saveDate()">ابدأ العد 💗</button>
+    </div>
+    <p id="sinceLabel" style="margin-top:12px;color:var(--pink);font-weight:bold"></p>
+  </div>
+
+  <!-- Reborn day -->
+  <div class="counter-box" style="background:linear-gradient(135deg,#fff,#fdf3ff);border:2px solid var(--pink-light)">
+    <h2>✨ اليوم اللي اتولدنا فيه من جديد</h2>
+    <p style="color:#8a7a86;margin-bottom:14px">أحلى يوم في حياتنا — 15 مارس الساعة 1:34 🤍</p>
+    <div class="counter">
+      <div class="unit"><div class="num" id="rd">0</div><div class="lbl">يوم</div></div>
+      <div class="unit"><div class="num" id="rh">0</div><div class="lbl">ساعة</div></div>
+      <div class="unit"><div class="num" id="rm">0</div><div class="lbl">دقيقة</div></div>
+      <div class="unit"><div class="num" id="rs">0</div><div class="lbl">ثانية</div></div>
+    </div>
+    <p id="rebornLabel" style="margin-top:14px;color:var(--purple);font-weight:bold"></p>
+  </div>
+
+  <!-- First talk -->
+  <div class="counter-box">
+    <h2>💬 أول يوم اتكلمنا فيه</h2>
+    <p style="color:#8a7a86;margin-bottom:14px">من أول رسالة.. وبدأت الحكاية 💌</p>
+    <div class="counter">
+      <div class="unit"><div class="num" id="td">0</div><div class="lbl">يوم</div></div>
+      <div class="unit"><div class="num" id="th">0</div><div class="lbl">ساعة</div></div>
+      <div class="unit"><div class="num" id="tm">0</div><div class="lbl">دقيقة</div></div>
+      <div class="unit"><div class="num" id="ts">0</div><div class="lbl">ثانية</div></div>
+    </div>
+    <p id="talkLabel" style="margin-top:14px;color:var(--pink);font-weight:bold"></p>
+  </div>
+
+  <!-- Birthdays -->
+  <div class="card" style="text-align:center">
+    <h2 style="justify-content:center">🎂 عيد ميلاد حبيبي</h2>
+    <p id="bdayMsg" style="font-size:1.3rem;color:var(--pink);font-weight:bold;margin-bottom:10px"></p>
+    <div class="counter" style="direction:ltr">
+      <div class="unit"><div class="num" id="bd">0</div><div class="lbl">يوم</div></div>
+      <div class="unit"><div class="num" id="bh">0</div><div class="lbl">ساعة</div></div>
+      <div class="unit"><div class="num" id="bm">0</div><div class="lbl">دقيقة</div></div>
+      <div class="unit"><div class="num" id="bs">0</div><div class="lbl">ثانية</div></div>
+    </div>
+    <p id="bdayGreet" style="margin-top:14px;line-height:2"></p>
+    <button onclick="celebrate()" style="margin-top:10px">🎉 فجّر الاحتفال</button>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h2 style="justify-content:center">🎁 عيد ميلادي</h2>
+    <p id="myBdayMsg" style="font-size:1.3rem;color:var(--purple);font-weight:bold;margin-bottom:10px"></p>
+    <div class="counter" style="direction:ltr">
+      <div class="unit"><div class="num" id="md">0</div><div class="lbl">يوم</div></div>
+      <div class="unit"><div class="num" id="mh">0</div><div class="lbl">ساعة</div></div>
+      <div class="unit"><div class="num" id="mm">0</div><div class="lbl">دقيقة</div></div>
+      <div class="unit"><div class="num" id="ms">0</div><div class="lbl">ثانية</div></div>
+    </div>
+    <p id="myBdayGreet" style="margin-top:14px;line-height:2"></p>
+  </div>
+
+  <!-- Gallery -->
+  <div class="card">
+    <h2>📸 معرض صورنا</h2>
+    <div id="galleryGrid"></div>
+    <div class="upload-area">
+      <button type="button" onclick="document.getElementById('photoInput').click()">＋ أضيفي صورة</button>
+      <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="card">
+    <h2>📅 قصة حبنا</h2>
+    <div id="timeline"></div>
+    <div class="tl-form">
+      <input type="date" id="tlDate">
+      <input type="text" id="tlTitle" placeholder="عنوان الذكرى..." style="flex:1;min-width:120px">
+      <input type="text" id="tlDesc" placeholder="التفاصيل..." style="flex:2;min-width:180px">
+      <button onclick="addMemory()">إضافة 💕</button>
+    </div>
+  </div>
+
+  <!-- Love Letter -->
+  <div class="card">
+    <h2>💌 رسالة من القلب <button onclick="toggleLetterEdit()" style="font-size:.85rem;padding:6px 14px">تعديل</button></h2>
+    <div id="letter"></div>
+    <div id="letterEdit" class="hidden" style="margin-top:12px">
+      <textarea id="letterText" rows="5" style="width:100%"></textarea>
+      <button onclick="saveLetter()" style="margin-top:10px">حفظ الرسالة ✔</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="lightbox"><button class="close" onclick="closeLightbox()">✖</button><img id="lbImg" src=""></div>
+<button id="musicToggle" onclick="toggleHearts()" title="تأثير القلوب">💗</button>
+<footer>صُنع بحُب 🤍 — بياناتك محفوظة على جهازك فقط</footer>
+
+<script>
+const LS = {
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){alert('مساحة التخزين ممتلئة — امسح بعض الصور القديمة')}}
+};
+const pad=n=>String(n).padStart(2,'0');
+
+/* 1. Counter — 2 يونيو */
+const START_YEAR = 2025; /* ✏️ عدّلي السنة لو مختلفة */
+const DEFAULT_START = new Date(START_YEAR, 5, 2, 0, 0, 0).getTime();
+let startTS = LS.get('loveStart', DEFAULT_START);
+function saveDate(){
+  const v = document.getElementById('startDate').value;
+  if(!v){alert('اختاري التاريخ الأول 😊');return}
+  startTS = new Date(v).getTime();
+  LS.set('loveStart', startTS);
+  updateCounter();
+}
+function updateCounter(){
+  if(!startTS) return;
+  document.getElementById('sinceLabel').textContent =
+    'منذ ' + new Date(startTS).toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+  const s = Math.floor((Date.now()-startTS)/1000);
+  document.getElementById('cd').textContent = pad(Math.floor(s/86400));
+  document.getElementById('ch').textContent = pad(Math.floor(s/3600)%24);
+  document.getElementById('cm').textContent = pad(Math.floor(s/60)%60);
+  document.getElementById('cs').textContent = pad(s%60);
+}
+updateCounter(); setInterval(updateCounter, 1000);
+
+/* Reborn day — 15 مارس 1:34 */
+const REBORN_YEAR = 2025; /* ✏️ عدّلي السنة لو مختلفة */
+let rebornTS = LS.get('rebornTS', new Date(REBORN_YEAR, 2, 15, 1, 34, 0).getTime());
+function updateReborn(){
+  if(rebornTS > Date.now()){
+    document.getElementById('rebornLabel').textContent = 'لسه اليوم ده ما جهش.. مستنيينه بفارغ الصبر 🤍';
+    return;
+  }
+  document.getElementById('rebornLabel').textContent =
+    'وإحنا عايشين أحلى أيامنا من ' + new Date(rebornTS).toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}) + ' 🤍';
+  const s = Math.floor((Date.now()-rebornTS)/1000);
+  document.getElementById('rd').textContent = pad(Math.floor(s/86400));
+  document.getElementById('rh').textContent = pad(Math.floor(s/3600)%24);
+  document.getElementById('rm').textContent = pad(Math.floor(s/60)%60);
+  document.getElementById('rs').textContent = pad(s%60);
+}
+updateReborn(); setInterval(updateReborn, 1000);
+
+/* First talk — 10 يونيو */
+const TALK_YEAR = 2025; /* ✏️ عدّلي السنة لو مختلفة */
+let talkTS = LS.get('talkTS', new Date(TALK_YEAR, 5, 10, 0, 0, 0).getTime());
+function updateTalk(){
+  document.getElementById('talkLabel').textContent =
+    'وما وقفش الكلام من يوم ' + new Date(talkTS).toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}) + ' 💌';
+  const s = Math.max(0, Math.floor((Date.now()-talkTS)/1000));
+  document.getElementById('td').textContent = pad(Math.floor(s/86400));
+  document.getElementById('th').textContent = pad(Math.floor(s/3600)%24);
+  document.getElementById('tm').textContent = pad(Math.floor(s/60)%60);
+  document.getElementById('ts').textContent = pad(s%60);
+}
+updateTalk(); setInterval(updateTalk, 1000);
+
+/* Gallery */
+function renderGallery(){
+  const photos = LS.get('photos', []);
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  photos.forEach((src,i)=>{
+    const div = document.createElement('div');
+    div.className='photo';
+    div.innerHTML = `<img src="${src}" loading="lazy"><button class="del" title="حذف" onclick="delPhoto(event,${i})">✖</button>`;
+    div.onclick = ()=>openLightbox(src);
+    grid.appendChild(div);
+  });
+}
+document.getElementById('photoInput').addEventListener('change', e=>{
+  const files=[...e.target.files];
+  let photos = LS.get('photos', []);
+  let pending = files.length;
+  files.forEach(f=>{
+    const r=new FileReader();
+    r.onload = ev=>{
+      photos.push(ev.target.result);
+      if(--pending===0){ LS.set('photos',photos); renderGallery(); }
+    };
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+});
+function delPhoto(e,i){
+  e.stopPropagation();
+  if(!confirm('متأكد/ة من حذف الصورة؟')) return;
+  let photos=LS.get('photos',[]); photos.splice(i,1);
+  LS.set('photos',photos); renderGallery();
+}
+function openLightbox(src){
+  document.getElementById('lbImg').src=src;
+  document.getElementById('lightbox').style.display='flex';
+}
+function closeLightbox(){document.getElementById('lightbox').style.display='none'}
+document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox()};
+
+/* Timeline */
+function renderTimeline(){
+  const items = LS.get('timeline', []);
+  const box = document.getElementById('timeline');
+  box.innerHTML = items.length? '' : '<p style="color:#b49db0">لسه مفيش ذكريات.. اضيفوا أول ذكرى 💕</p>';
+  [...items].sort((a,b)=>a.date.localeCompare(b.date)).forEach(it=>{
+    const d=document.createElement('div');
+    d.className='tl-item';
+    d.innerHTML=`<div class="tl-date">${new Date(it.date+'T00:00:00').toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="tl-text"><b>${esc(it.title)}</b>${esc(it.desc)}
+      <br><button class="del" onclick="delMemory('${it.id}')">حذف</button></div>`;
+    box.appendChild(d);
+  });
+}
+function addMemory(){
+  const date=document.getElementById('tlDate').value;
+  const title=document.getElementById('tlTitle').value.trim();
+  const desc=document.getElementById('tlDesc').value.trim();
+  if(!date||!title){alert('اكتبي التاريخ والعنوان على الأقل 😊');return}
+  const items=LS.get('timeline',[]);
+  items.push({id:Date.now()+'',date,title,desc});
+  LS.set('timeline',items);
+  document.getElementById('tlDate').value='';
+  document.getElementById('tlTitle').value='';
+  document.getElementById('tlDesc').value='';
+  renderTimeline();
+}
+function delMemory(id){
+  if(!confirm('حذف الذكرى دي؟'))return;
+  LS.set('timeline', LS.get('timeline',[]).filter(x=>x.id!==id));
+  renderTimeline();
+}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+/* Love Letter */
+const DEFAULT_LETTER = `حبيبي،
+كل يوم بيقعد جنبك بحس إني أغنى إنسانة في الدنيا.
+شكرًا إنك موجود في حياتي 🤍`;
+function renderLetter(){
+  document.getElementById('letter').textContent = LS.get('letter', DEFAULT_LETTER);
+}
+function toggleLetterEdit(){
+  const ed=document.getElementById('letterEdit');
+  const isHidden = ed.classList.toggle('hidden');
+  if(!isHidden) document.getElementById('letterText').value = LS.get('letter', DEFAULT_LETTER);
+}
+function saveLetter(){
+  LS.set('letter', document.getElementById('letterText').value);
+  toggleLetterEdit(); renderLetter();
+}
+
+/* Falling hearts */
+const canvas=document.getElementById('heartsCanvas'), ctx=canvas.getContext('2d');
+let hearts=[], heartsOn=true;
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize(); addEventListener('resize',resize);
+function spawnHeart(){
+  hearts.push({x:Math.random()*canvas.width, y:-20, s:8+Math.random()*14,
+    vy:.4+Math.random()*.8, vx:(Math.random()-.5)*.5,
+    a:.15+Math.random()*.35, hue:Math.random()<.5?340:280, rot:Math.random()*Math.PI});
+}
+function drawHearts(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(heartsOn && hearts.length<45 && Math.random()<.12) spawnHeart();
+  hearts = hearts.filter(h=>h.y<canvas.height+30);
+  hearts.forEach(h=>{
+    h.y+=h.vy; h.x+=h.vx;
+    ctx.save(); ctx.translate(h.x,h.y); ctx.rotate(h.rot);
+    ctx.globalAlpha=h.a; ctx.fillStyle=`hsl(${h.hue},80%,70%)`;
+    ctx.beginPath();
+    ctx.moveTo(0,h.s*.3);
+    ctx.bezierCurveTo(0,0,-h.s,-h.s*.2,-h.s,h.s*.35);
+    ctx.bezierCurveTo(-h.s,h.s*.8,0,h.s*1.1,0,h.s*1.35);
+    ctx.bezierCurveTo(0,h.s*1.1,h.s,h.s*.8,h.s,h.s*.35);
+    ctx.bezierCurveTo(h.s,-h.s*.2,0,0,0,h.s*.3);
+    ctx.fill(); ctx.restore();
+  });
+  requestAnimationFrame(drawHearts);
+}
+function toggleHearts(){
+  heartsOn=!heartsOn;
+  document.getElementById('musicToggle').style.opacity=heartsOn?1:.4;
+}
+drawHearts();
+
+/* Birthdays: حبيبي 1 أكتوبر | أنا 28 يونيو */
+function nextOccurrence(month, day){
+  const now=new Date();
+  let b=new Date(now.getFullYear(), month, day, 0, 0, 0);
+  if(b<=now) b=new Date(now.getFullYear()+1, month, day, 0, 0, 0);
+  return b;
+}
+function fillCountdown(prefix, diff){
+  const total=Math.max(0, Math.floor(diff/1000));
+  document.getElementById(prefix+'d').textContent=pad(Math.floor(total/86400));
+  document.getElementById(prefix+'h').textContent=pad(Math.floor(total/3600)%24);
+  document.getElementById(prefix+'m').textContent=pad(Math.floor(total/60)%60);
+  document.getElementById(prefix+'s').textContent=pad(total%60);
+}
+function updateBdays(){
+  const now=new Date();
+  const pb=nextOccurrence(9,1);
+  fillCountdown('b', pb-now);
+  const pIsToday = now.getMonth()===9 && now.getDate()===1;
+  document.getElementById('bdayMsg').textContent = pIsToday
+    ? '🎉 عيد ميلادك النهارده!! كل سنة وأنت طيب يا حبيبي ❤️'
+    : 'المتبقي على عيد ميلادك يوم 1 أكتوبر:';
+  document.getElementById('bdayGreet').textContent = pIsToday
+    ? 'كل سنة وأنت ليا، وأنا ليك.. يومك جميل زيك 🤍🎂'
+    : 'بنستنى اليوم ده من السنة للسنة عشان نحتفل بأغلى إنسان ❤️';
+  const mb=nextOccurrence(5,28);
+  fillCountdown('m', mb-now);
+  const mIsToday = now.getMonth()===5 && now.getDate()===28;
+  document.getElementById('myBdayMsg').textContent = mIsToday
+    ? '🎉 عيد ميلادي النهارده! 🥳'
+    : 'المتبقي على عيد ميلادي يوم 28 يونيو:';
+  document.getElementById('myBdayGreet').textContent = mIsToday
+    ? 'كل سنة وأنا حبك يا حياتي كلها ❤️'
+    : 'مستنية اليوم ده عشان أحتفل بيك أنت 🤍';
+}
+function celebrate(){
+  for(let i=0;i<80;i++){ setTimeout(spawnHeart, i*30); }
+  alert('🎉🎂 كل سنة وأنت طيب يا حبيبي! 🤍');
+}
+updateBdays(); setInterval(updateBdays,1000);
+
+/* init */
+renderGallery(); renderTimeline(); renderLetter();
+</script>
+</body>
+</html>
